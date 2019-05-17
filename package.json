@@ -1,6 +1,6 @@
 {
   "name": "use-api-polling",
-  "version": "0.0.0-development",
+  "version": "0.1.0",
   "description": "",
   "keywords": [],
   "main": "dist/use-api-polling.umd.js",
@@ -118,6 +118,7 @@
     "rollup-plugin-sourcemaps": "^0.4.2",
     "rollup-plugin-terser": "^4.0.4",
     "rollup-plugin-typescript2": "^0.21.0",
+    "rollup-plugin-uglify": "^6.0.2",
     "semantic-release": "^15.13.12",
     "shelljs": "^0.8.3",
     "travis-deploy-once": "^5.0.9",
