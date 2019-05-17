@@ -14,24 +14,32 @@ function useAPIPolling<DataType>(opts: APIPollingOptions<DataType>): DataType {
   const timerId = useRef<any>()
   const [data, setData] = useState(initialState)
 
-  const fetchData = async () => {
-    try {
-      const newData = await fetchFunc()
-      setData(newData)
-    } catch (e) {
-      if (!onError) {
-        setData(initialState)
-      } else {
-        onError(e, setData)
-      }
-    }
-  }
+  const fetchData = () =>
+    new Promise(resolve => {
+      fetchFunc()
+        .then(newData => {
+          setData(newData)
+          resolve()
+        })
+        .catch(e => {
+          if (!onError) {
+            setData(initialState)
+            resolve()
+          } else {
+            onError(e, setData)
+            resolve()
+          }
+        })
+    })
 
   const doPolling = () => {
     if (!timerId.current) {
-      timerId.current = setTimeout(async () => {
-        await fetchData()
-        doPolling()
+      timerId.current = setTimeout(() => {
+        /* tslint:disable no-floating-promises */
+        fetchData().then(() => {
+          doPolling()
+        })
+        /* tslint:enable no-floating-promises */
       }, delay)
     }
   }

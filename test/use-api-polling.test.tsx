@@ -16,31 +16,25 @@ describe('useAPIPolling', () => {
   let fetchFunc: () => Promise<DataType>
   let opts: APIPollingOptions<DataType>
   beforeEach(() => {
-    fetchFunc = jest.fn().mockImplementation(() => Promise.resolve({ foo: 'updated' }))
+    fetchFunc = jest.fn().mockResolvedValue({ foo: 'updated' })
     opts = {
       fetchFunc,
       initialState: { foo: 'initial' },
       delay: DELAY_TIMEOUT
     }
   })
-  afterEach(() => {
-    // TODO: remove any casting
-    ;(fetchFunc as any).mockReset()
-  })
 
   describe('fires fetch function', () => {
     it('on mount', () => {
-      const { unmount } = renderHook(() => useAPIPolling(opts))
+      renderHook(() => useAPIPolling(opts))
       expect(fetchFunc).toHaveBeenCalled()
-      unmount()
     })
 
     it('every N milliseconds', async () => {
-      const { unmount, waitForNextUpdate } = renderHook(() => useAPIPolling(opts))
-      await sleep(DELAY_TIMEOUT)
+      const { waitForNextUpdate } = renderHook(() => useAPIPolling(opts))
+      await waitForNextUpdate()
       await waitForNextUpdate()
       expect(fetchFunc).toHaveBeenCalledTimes(2)
-      unmount()
     })
   })
 
@@ -78,8 +72,10 @@ describe('useAPIPolling', () => {
 
   describe('onError provided', () => {
     it('fires onError callback after error fetch result', async () => {
-      const onError = jest.fn()
-      fetchFunc = jest.fn().mockRejectedValueOnce({ foo: 'rejected' })
+      const onError = jest.fn().mockImplementation((e, setData) => {
+        setData({ foo: 'my error handling' })
+      })
+      fetchFunc = jest.fn().mockRejectedValue({ foo: 'rejected' })
 
       opts = {
         ...opts,
@@ -95,16 +91,46 @@ describe('useAPIPolling', () => {
   describe('updateTrigger provided', () => {
     // this feature works but because of problems with hooks testing
     // I cant cover this case at the moment
+    let oldFetch: () => Promise<DataType>
+    let newFetch: () => Promise<DataType>
+    beforeEach(async () => {
+      oldFetch = opts.fetchFunc
+      opts = {
+        ...opts,
+        updateTrigger: 'foo'
+      }
+      const { waitForNextUpdate, rerender } = renderHook(useAPIPolling, { initialProps: opts })
+      await waitForNextUpdate()
+      await waitForNextUpdate()
 
-    it.todo('stops fetch function call after updateTrigger change')
-    it.todo('fires new fetch function call after updateTrigger change')
+      newFetch = jest
+        .fn()
+        .mockResolvedValueOnce({ foo: 'ironman' })
+        .mockResolvedValueOnce({ foo: 'superman' })
+      opts = {
+        ...opts,
+        fetchFunc: newFetch,
+        updateTrigger: 'bar'
+      }
+      rerender(opts)
+
+      await waitForNextUpdate()
+      await waitForNextUpdate()
+    })
+
+    it('stops fetch function call after updateTrigger change', () => {
+      expect(oldFetch).toBeCalledTimes(2)
+    })
+
+    it('fires new fetch function call after updateTrigger change', () => {
+      expect(newFetch).toBeCalledTimes(2)
+    })
   })
 
   describe('on unmount', () => {
     it('stops fetch function call after unmount', async () => {
       const { waitForNextUpdate, unmount } = renderHook(() => useAPIPolling(opts))
       await waitForNextUpdate()
-      await sleep(DELAY_TIMEOUT)
       await waitForNextUpdate()
       unmount()
 
