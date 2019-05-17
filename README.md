@@ -1,10 +1,9 @@
 # useAPIPolling
 
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
-[![Greenkeeper badge](https://badges.greenkeeper.io/alexjoverm/typescript-library-starter.svg)](https://greenkeeper.io/)
-[![Travis](https://img.shields.io/travis/alexjoverm/typescript-library-starter.svg)](https://travis-ci.org/alexjoverm/typescript-library-starter)
-[![Coveralls](https://img.shields.io/coveralls/alexjoverm/typescript-library-starter.svg)](https://coveralls.io/github/alexjoverm/typescript-library-starter)
-[![Dev Dependencies](https://david-dm.org/alexjoverm/typescript-library-starter/dev-status.svg)](https://david-dm.org/alexjoverm/typescript-library-starter?type=dev)
+[![Travis](https://img.shields.io/travis/faizrr/use-api-polling.svg)](https://travis-ci.org/faizrr/use-api-polling)
+[![Coveralls](https://img.shields.io/coveralls/faizrr/use-api-polling)](https://coveralls.io/github/faizrr/use-api-polling)
+[![Dev Dependencies](https://david-dm.org/faizrr/use-api-polling/dev-status.svg)](https://david-dm.org/faizrr/use-api-polling?type=dev)
 
 Simple react hook for data polling. Executes async function every N seconds, updates state and handles all setTimeout/clearTimeout stuff for you.
 
