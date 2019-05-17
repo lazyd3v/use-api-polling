@@ -89,8 +89,6 @@ describe('useAPIPolling', () => {
   })
 
   describe('updateTrigger provided', () => {
-    // this feature works but because of problems with hooks testing
-    // I cant cover this case at the moment
     let oldFetch: () => Promise<DataType>
     let newFetch: () => Promise<DataType>
     beforeEach(async () => {
