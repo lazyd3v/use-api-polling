@@ -60,7 +60,7 @@ const App = () => {
   }
   const data = useAPIPolling(options)
   
-  return <Gallery data={cats} />
+  return <Gallery data={data} />
 }
 ```
 
