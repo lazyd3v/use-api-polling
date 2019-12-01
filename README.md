@@ -11,13 +11,11 @@ Simple react hook for data polling. Executes async function every N seconds, upd
 
 - Simple API
 
-- Small size (only __301 bytes__)
+- Small size (only **547 bytes**)
 
 - Typescript support
 
 - Will not make additional async function call if previous doesn't complete
-
-  
 
 ## Install
 
@@ -33,8 +31,6 @@ Or yarn
 yarn add use-api-polling
 ```
 
-
-
 ## Usage
 
 ```tsx
@@ -43,7 +39,7 @@ import useAPIPolling, { APIPollingOptions } from 'use-api-polling'
 import API from './api'
 
 type DataType = {
-  img: string,
+  img: string
   title: string
 }
 
@@ -52,28 +48,26 @@ const App = () => {
     const cats = await API.getCats()
     return cats
   }
-  
+
   const options: APIPollingOptions<DataType> = {
     fetchFunc,
     initialState: [],
     delay: 5000
   }
   const data = useAPIPolling(options)
-  
+
   return <Gallery data={data} />
 }
 ```
-
-
 
 ## API
 
 ### APIPollingOptions&lt;DataType>
 
-| Option name   | Type                     | Required | Description                                                  |
-| ------------- | ------------------------ | -------- | ------------------------------------------------------------ |
-| fetchFunc     | () => Promise<DataType>  | Yes      | Function be called every N seconds. Result of this function will be passed to hooks result |
-| initialState  | DataType                 | Yes      | Initial hook result. Will be returned before first fetchFunc |
-| delay         | number                   | Yes      | Interval for polling in milliseconds                         |
+| Option name   | Type                     | Required | Description                                                                                                                                                                   |
+| ------------- | ------------------------ | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| fetchFunc     | () => Promise<DataType>  | Yes      | Function be called every N seconds. Result of this function will be passed to hooks result                                                                                    |
+| initialState  | DataType                 | Yes      | Initial hook result. Will be returned before first fetchFunc                                                                                                                  |
+| delay         | number                   | Yes      | Interval for polling in milliseconds                                                                                                                                          |
 | onError       | (error, setData) => void | No       | Callback be called after fetchFunc promise fail. setData function is used to change hook result. If option is not provided, initialState will be written after fetchFunc fail |
-| updateTrigger | any                      | No       | This variable pass as useEffect's 2nd argument to trigger update. If option is not provided, polling will start on component mount and stop on component unmount |
+| updateTrigger | any                      | No       | This variable pass as useEffect's 2nd argument to trigger update. If option is not provided, polling will start on component mount and stop on component unmount              |
