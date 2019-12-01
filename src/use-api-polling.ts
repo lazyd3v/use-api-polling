@@ -40,16 +40,16 @@ function useAPIPolling<DataType>(opts: APIPollingOptions<DataType>): DataType {
 
   const pollingRoutine = () => {
     fetchCallId.current = nanoid()
+    /* tslint:disable no-floating-promises */
     fetchData(fetchCallId.current).then(() => {
       doPolling()
     })
+    /* tslint:enable no-floating-promises */
   }
 
   const doPolling = () => {
     timerId.current = setTimeout(() => {
-      /* tslint:disable no-floating-promises */
       pollingRoutine()
-      /* tslint:enable no-floating-promises */
     }, delay)
   }
 
