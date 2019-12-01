@@ -33,20 +33,20 @@ function useAPIPolling<DataType>(opts: APIPollingOptions<DataType>): DataType {
     })
 
   const doPolling = () => {
-    if (!timerId.current) {
-      timerId.current = setTimeout(() => {
-        /* tslint:disable no-floating-promises */
-        fetchData().then(() => {
-          doPolling()
-        })
-        /* tslint:enable no-floating-promises */
-      }, delay)
-    }
+    timerId.current = setTimeout(() => {
+      /* tslint:disable no-floating-promises */
+      fetchData().then(() => {
+        doPolling()
+      })
+      /* tslint:enable no-floating-promises */
+    }, delay)
   }
 
   const stopPolling = () => {
-    clearTimeout(timerId.current)
-    timerId.current = null
+    if (timerId.current) {
+      clearTimeout(timerId.current)
+      timerId.current = null
+    }
   }
 
   useEffect(

@@ -1,4 +1,4 @@
-import { renderHook, act } from 'react-hooks-testing-library'
+import { renderHook, act } from '@testing-library/react-hooks'
 
 import useAPIPolling, { APIPollingOptions } from '../src/use-api-polling'
 
@@ -16,7 +16,12 @@ describe('useAPIPolling', () => {
   let fetchFunc: () => Promise<DataType>
   let opts: APIPollingOptions<DataType>
   beforeEach(() => {
-    fetchFunc = jest.fn().mockResolvedValue({ foo: 'updated' })
+    fetchFunc = jest
+      .fn()
+      .mockResolvedValue({ foo: 'default' })
+      .mockResolvedValueOnce({ foo: 'updated' })
+      .mockResolvedValueOnce({ foo: 'updated2' })
+      .mockResolvedValueOnce({ foo: 'updated3' })
     opts = {
       fetchFunc,
       initialState: { foo: 'initial' },
@@ -26,27 +31,38 @@ describe('useAPIPolling', () => {
 
   describe('fires fetch function', () => {
     it('on mount', () => {
-      renderHook(() => useAPIPolling(opts))
+      renderHook(useAPIPolling, {
+        initialProps: opts
+      })
       expect(fetchFunc).toHaveBeenCalled()
     })
 
     it('every N milliseconds', async () => {
-      const { waitForNextUpdate } = renderHook(() => useAPIPolling(opts))
+      const { waitForNextUpdate, result } = renderHook(useAPIPolling, {
+        initialProps: opts
+      })
       await waitForNextUpdate()
       await waitForNextUpdate()
-      expect(fetchFunc).toHaveBeenCalledTimes(2)
+      await waitForNextUpdate()
+
+      expect(fetchFunc).toHaveBeenCalledTimes(3)
+      expect(result.current).toEqual({ foo: 'updated3' })
     })
   })
 
   describe('returns', () => {
     it('initialState on mount', () => {
-      const { result, unmount } = renderHook(() => useAPIPolling(opts))
+      const { result, unmount } = renderHook(useAPIPolling, {
+        initialProps: opts
+      })
       expect(result.current).toEqual(opts.initialState)
       unmount()
     })
 
     it('fetch result after success fetch result', async () => {
-      const { result, waitForNextUpdate, unmount } = renderHook(() => useAPIPolling(opts))
+      const { result, waitForNextUpdate, unmount } = renderHook(useAPIPolling, {
+        initialProps: opts
+      })
       await waitForNextUpdate()
       expect(result.current).toEqual({ foo: 'updated' })
       unmount()
@@ -62,7 +78,9 @@ describe('useAPIPolling', () => {
         ...opts,
         fetchFunc
       }
-      const { result, waitForNextUpdate } = renderHook(() => useAPIPolling(opts))
+      const { result, waitForNextUpdate } = renderHook(useAPIPolling, {
+        initialProps: opts
+      })
       await waitForNextUpdate()
       expect(result.current).toEqual({ foo: 'updated' })
       await waitForNextUpdate()
@@ -82,7 +100,9 @@ describe('useAPIPolling', () => {
         fetchFunc,
         onError
       }
-      const { waitForNextUpdate } = renderHook(() => useAPIPolling(opts))
+      const { waitForNextUpdate } = renderHook(useAPIPolling, {
+        initialProps: opts
+      })
       await waitForNextUpdate()
       expect(onError).toHaveBeenCalled()
     })
@@ -90,44 +110,55 @@ describe('useAPIPolling', () => {
 
   describe('updateTrigger provided', () => {
     let oldFetch: () => Promise<DataType>
+    let oldOpts: any = {}
     let newFetch: () => Promise<DataType>
-    beforeEach(async () => {
-      oldFetch = opts.fetchFunc
-      opts = {
+    let newOpts: any = {}
+
+    beforeEach(() => {
+      oldFetch = jest
+        .fn()
+        .mockResolvedValue({ foo: 'default' })
+        .mockResolvedValueOnce({ foo: 'one' })
+        .mockResolvedValueOnce({ foo: 'two' })
+      oldOpts = {
         ...opts,
+        fetchFunc: oldFetch,
         updateTrigger: 'foo'
       }
-      const { waitForNextUpdate, rerender } = renderHook(useAPIPolling, { initialProps: opts })
-      await waitForNextUpdate()
-      await waitForNextUpdate()
-
       newFetch = jest
         .fn()
-        .mockResolvedValueOnce({ foo: 'ironman' })
-        .mockResolvedValueOnce({ foo: 'superman' })
-      opts = {
+        .mockResolvedValue({ foo: 'default' })
+        .mockResolvedValueOnce({ foo: 'three' })
+        .mockResolvedValueOnce({ foo: 'four' })
+      newOpts = {
         ...opts,
         fetchFunc: newFetch,
         updateTrigger: 'bar'
       }
-      rerender(opts)
-
-      await waitForNextUpdate()
-      await waitForNextUpdate()
     })
 
-    it('stops fetch function call after updateTrigger change', () => {
-      expect(oldFetch).toBeCalledTimes(2)
-    })
+    it('does not return old fetch value after updateTrigger change', async () => {
+      const { waitForNextUpdate, result, rerender } = renderHook(useAPIPolling, {
+        initialProps: oldOpts
+      })
+      await waitForNextUpdate()
+      expect(result.current).toEqual({ foo: 'one' })
+      await waitForNextUpdate()
+      expect(result.current).toEqual({ foo: 'two' })
 
-    it('fires new fetch function call after updateTrigger change', () => {
-      expect(newFetch).toBeCalledTimes(2)
+      rerender(newOpts)
+      await waitForNextUpdate()
+      expect(result.current).toEqual({ foo: 'three' })
+      await waitForNextUpdate()
+      expect(result.current).toEqual({ foo: 'four' })
     })
   })
 
   describe('on unmount', () => {
     it('stops fetch function call after unmount', async () => {
-      const { waitForNextUpdate, unmount } = renderHook(() => useAPIPolling(opts))
+      const { waitForNextUpdate, unmount } = renderHook(useAPIPolling, {
+        initialProps: opts
+      })
       await waitForNextUpdate()
       await waitForNextUpdate()
       unmount()
