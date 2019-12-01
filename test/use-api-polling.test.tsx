@@ -1,5 +1,7 @@
 import { renderHook, act } from '@testing-library/react-hooks'
 
+const nanoid = require('nanoid')
+
 import useAPIPolling, { APIPollingOptions } from '../src/use-api-polling'
 
 // TODO: remove this const
@@ -151,6 +153,36 @@ describe('useAPIPolling', () => {
       expect(result.current).toEqual({ foo: 'three' })
       await waitForNextUpdate()
       expect(result.current).toEqual({ foo: 'four' })
+    })
+
+    it('does not return old fetch value if old fetch was slow and in pending state', async () => {
+      oldFetch = jest.fn().mockImplementation(
+        () =>
+          new Promise(resolve => {
+            setTimeout(() => {
+              resolve({ foo: 'sorry' })
+            }, DELAY_TIMEOUT * 3)
+          })
+      )
+      newFetch = jest.fn().mockImplementation(
+        () =>
+          new Promise(resolve => {
+            resolve({ foo: nanoid() })
+          })
+      )
+
+      const { waitForNextUpdate, result, rerender } = renderHook(useAPIPolling, {
+        initialProps: { ...oldOpts, fetchFunc: oldFetch }
+      })
+      await waitForNextUpdate()
+      expect(result.current).toEqual({ foo: 'sorry' })
+
+      rerender({ ...newOpts, fetchFunc: newFetch })
+
+      for (let i = 0; i < 10; i++) {
+        await waitForNextUpdate()
+        expect(result.current).not.toEqual({ foo: 'sorry' })
+      }
     })
   })
 

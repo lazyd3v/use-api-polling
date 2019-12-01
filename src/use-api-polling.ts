@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, Dispatch } from 'react'
+import nanoid from 'nanoid'
 
 export type APIPollingOptions<DataType> = {
   fetchFunc: () => Promise<DataType>
@@ -12,13 +13,17 @@ function useAPIPolling<DataType>(opts: APIPollingOptions<DataType>): DataType {
   const { initialState, fetchFunc, delay, onError, updateTrigger } = opts
 
   const timerId = useRef<any>()
+  const fetchCallId = useRef<any>()
   const [data, setData] = useState(initialState)
 
-  const fetchData = () =>
-    new Promise(resolve => {
+  const fetchData = (id: string) => {
+    return new Promise(resolve => {
       fetchFunc()
         .then(newData => {
-          setData(newData)
+          if (id === fetchCallId.current) {
+            setData(newData)
+          }
+
           resolve()
         })
         .catch(e => {
@@ -31,13 +36,19 @@ function useAPIPolling<DataType>(opts: APIPollingOptions<DataType>): DataType {
           }
         })
     })
+  }
+
+  const pollingRoutine = () => {
+    fetchCallId.current = nanoid()
+    fetchData(fetchCallId.current).then(() => {
+      doPolling()
+    })
+  }
 
   const doPolling = () => {
     timerId.current = setTimeout(() => {
       /* tslint:disable no-floating-promises */
-      fetchData().then(() => {
-        doPolling()
-      })
+      pollingRoutine()
       /* tslint:enable no-floating-promises */
     }, delay)
   }
@@ -52,9 +63,7 @@ function useAPIPolling<DataType>(opts: APIPollingOptions<DataType>): DataType {
   useEffect(
     () => {
       /* tslint:disable no-floating-promises */
-      fetchData().then(() => {
-        doPolling()
-      })
+      pollingRoutine()
       /* tslint:enable */
 
       return stopPolling
