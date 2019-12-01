@@ -161,7 +161,7 @@ describe('useAPIPolling', () => {
           new Promise(resolve => {
             setTimeout(() => {
               resolve({ foo: 'sorry' })
-            }, DELAY_TIMEOUT * 3)
+            }, DELAY_TIMEOUT * 5)
           })
       )
       newFetch = jest.fn().mockImplementation(
@@ -176,6 +176,8 @@ describe('useAPIPolling', () => {
       })
       await waitForNextUpdate()
       expect(result.current).toEqual({ foo: 'sorry' })
+
+      await sleep(DELAY_TIMEOUT * 2)
 
       rerender({ ...newOpts, fetchFunc: newFetch })
 
