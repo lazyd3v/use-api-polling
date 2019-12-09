@@ -11,7 +11,7 @@ Simple react hook for data polling. Executes async function every N seconds, upd
 
 - Simple API
 
-- Small size (only **547 bytes**)
+- Small size (only **324 bytes**)
 
 - Typescript support
 
