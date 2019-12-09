@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, Dispatch } from 'react'
-import nanoid from 'nanoid'
 
 export type APIPollingOptions<DataType> = {
   fetchFunc: () => Promise<DataType>
@@ -13,10 +12,10 @@ function useAPIPolling<DataType>(opts: APIPollingOptions<DataType>): DataType {
   const { initialState, fetchFunc, delay, onError, updateTrigger } = opts
 
   const timerId = useRef<any>()
-  const fetchCallId = useRef<any>()
+  const fetchCallId = useRef(0)
   const [data, setData] = useState(initialState)
 
-  const fetchData = (id: string) => {
+  const fetchData = (id: Number) => {
     return new Promise(resolve => {
       fetchFunc()
         .then(newData => {
@@ -39,7 +38,7 @@ function useAPIPolling<DataType>(opts: APIPollingOptions<DataType>): DataType {
   }
 
   const pollingRoutine = () => {
-    fetchCallId.current = nanoid()
+    fetchCallId.current += 1
     /* tslint:disable no-floating-promises */
     fetchData(fetchCallId.current).then(() => {
       doPolling()
