@@ -1,7 +1,7 @@
 # useAPIPolling
 
 [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
-[![Travis](https://img.shields.io/travis/faizrr/use-api-polling.svg)](https://travis-ci.org/faizrr/use-api-polling)
+![](https://github.com/lazyd3v/use-api-polling/workflows/Build/badge.svg)
 [![Coverage Status](https://coveralls.io/repos/github/faizrr/use-api-polling/badge.svg)](https://coveralls.io/github/faizrr/use-api-polling)
 [![Dev Dependencies](https://david-dm.org/faizrr/use-api-polling/dev-status.svg)](https://david-dm.org/faizrr/use-api-polling?type=dev)
 
