@@ -12,7 +12,7 @@
   "author": "Roman Faizullin <roman@faizullin.info>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/faizrr/use-api-polling"
+    "url": "https://github.com/lazyd3v/use-api-polling"
   },
   "license": "MIT",
   "engines": {
